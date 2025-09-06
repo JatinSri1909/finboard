@@ -1,9 +1,13 @@
+'use client';
+import Navbar from '@/components/shared/navbar';
+import { useMobile } from '@/hooks/use-mobile';
+
 export default function Home() {
+  const isMobile = useMobile();
+
   return (
     <main>
-      <div className="flex items-center justify-center h-screen">
-        <span className="text-2xl font-bold text-center text-primary">Finboard</span>
-      </div>
+      <Navbar />
     </main>
   );
 }
