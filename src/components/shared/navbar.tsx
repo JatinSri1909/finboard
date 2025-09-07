@@ -1,4 +1,4 @@
-import { ChartColumn, Plus } from 'lucide-react';
+import { ChartColumn } from 'lucide-react';
 import { AddWidgetButton } from './add-widget-button';
 import { useWidgetStore } from '@/store';
 

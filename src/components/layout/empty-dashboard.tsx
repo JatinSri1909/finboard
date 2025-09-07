@@ -1,16 +1,8 @@
 'use client';
 
-import { Card, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { ChartColumn, Plus, Zap, Globe, BarChart3 } from 'lucide-react';
-import { useWidgetStore } from '@/store';
+import { ChartColumn } from 'lucide-react';
 
 export function EmptyDashboard() {
-  const { setIsAddingWidget } = useWidgetStore();
-
-  const handleAddWidget = () => {
-    setIsAddingWidget(true);
-  };
 
   return (
     <div className="flex items-center justify-center min-h-[60vh] p-6">
