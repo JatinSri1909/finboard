@@ -24,7 +24,9 @@ export function WidgetGrid() {
         {widgets.map((widget, index) => {
           // Create staggered heights based on widget type and content
           const getWidgetHeight = () => {
-            const fieldCount = widget.config.selectedFields.length;
+            // Safely access selectedFields with fallback
+            const selectedFields = widget.config.selectedFields || [];
+            const fieldCount = selectedFields.length;
             
             if (widget.config.displayMode === 'chart') {
               return 'h-96'; // Charts are always tall
@@ -43,7 +45,7 @@ export function WidgetGrid() {
               key={widget.id} 
               className={`${getWidgetHeight()} w-full`}
               style={{
-                gridRow: `span ${widget.config.displayMode === 'chart' ? 3 : widget.config.selectedFields.length > 4 ? 3 : 2}`,
+                gridRow: `span ${widget.config.displayMode === 'chart' ? 3 : (widget.config.selectedFields || []).length > 4 ? 3 : 2}`,
               }}
             >
               <WidgetContainer widget={widget} />
