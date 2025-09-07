@@ -2,6 +2,17 @@ export type WidgetType = 'card' | 'table' | 'chart';
 
 export type WidgetDisplayMode = 'card' | 'table' | 'chart';
 
+export type ApiProvider = 'alpha-vantage' | 'finnhub' | 'indian-api';
+
+export type WidgetTemplate = {
+  id: string;
+  name: string;
+  description: string;
+  apiProvider: ApiProvider;
+  displayMode: WidgetDisplayMode;
+  category: 'watchlist' | 'market-gainers' | 'performance' | 'financial-data' | 'charts';
+};
+
 export interface WidgetField {
   path: string;
   label: string;
@@ -13,7 +24,10 @@ export interface WidgetField {
 export interface WidgetConfig {
   id: string;
   name: string;
-  apiUrl: string;
+  apiUrl: string; // Keep for backward compatibility
+  apiProvider: ApiProvider;
+  apiEndpoint: string; // Specific endpoint method for the API
+  symbol?: string; // Stock symbol for API calls
   refreshInterval: number; // in seconds
   displayMode: WidgetDisplayMode;
   selectedFields: string[];

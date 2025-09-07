@@ -2,6 +2,8 @@ import { useCallback, useEffect, useRef } from 'react';
 import { useWidgetStore } from '@/store';
 import { useApi } from './use-api';
 import { WidgetConfig } from '@/types';
+import { apiService } from '@/lib/api-service';
+import { DataMapper } from '@/lib/data-mapper';
 
 export function useWidget(widgetId: string) {
   const { widgets, updateWidgetData, setWidgetLoading } = useWidgetStore();
@@ -16,8 +18,25 @@ export function useWidget(widgetId: string) {
     setWidgetLoading(widgetId, true);
     
     try {
-      const response = await fetchData(widget.config.apiUrl);
-      updateWidgetData(widgetId, response.data);
+      // Use new API service if provider is specified, fallback to old method for backward compatibility
+      let response;
+      let processedData;
+      
+      if (widget.config.apiProvider && widget.config.apiEndpoint) {
+        response = await apiService.fetchWidgetData(widget.config);
+        // Pre-process data based on API provider and endpoint
+        processedData = DataMapper.preprocessApiData(
+          response.data, 
+          widget.config.apiProvider, 
+          widget.config.apiEndpoint
+        );
+      } else {
+        // Fallback to old API method for backward compatibility
+        response = await fetchData(widget.config.apiUrl);
+        processedData = response.data;
+      }
+      
+      updateWidgetData(widgetId, processedData);
     } catch (error) {
       updateWidgetData(widgetId, null, error instanceof Error ? error.message : 'Failed to fetch data');
     }

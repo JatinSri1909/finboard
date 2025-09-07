@@ -1,4 +1,5 @@
-import { WidgetField } from '@/types';
+import { WidgetField, ApiProvider } from '@/types';
+import { DataFormatters } from './data-formatters';
 
 export class DataMapper {
   /**
@@ -120,26 +121,28 @@ export class DataMapper {
     
     switch (format) {
       case 'currency':
-        return new Intl.NumberFormat('en-US', {
-          style: 'currency',
-          currency: 'USD',
-        }).format(Number(value));
+        return DataFormatters.formatCurrency(Number(value));
       
       case 'percentage':
-        return `${Number(value).toFixed(2)}%`;
+        return DataFormatters.formatPercentage(Number(value));
       
       case 'number':
-        return new Intl.NumberFormat('en-US').format(Number(value));
+        return DataFormatters.formatLargeNumber(Number(value));
       
       case 'date':
         return new Date(value).toLocaleDateString();
       
       default:
-        if (type === 'number') {
-          return Number(value).toLocaleString();
-        }
-        return String(value);
+        // Use smart formatting for automatic detection
+        return DataFormatters.smartFormat(value);
     }
+  }
+
+  /**
+   * Pre-process API response data based on provider and endpoint
+   */
+  static preprocessApiData(data: any, provider: ApiProvider, endpoint: string): any {
+    return DataFormatters.formatApiResponse(data, provider, endpoint);
   }
 
   /**
