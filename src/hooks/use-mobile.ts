@@ -1,36 +1,19 @@
-'use client';
+import * as React from 'react';
 
-import { useEffect, useState } from 'react';
+const MOBILE_BREAKPOINT = 768;
 
-/**
- * A React hook to detect if the current viewport is considered "mobile".
- * Uses a media query to detect if the screen width is less than 768px.
- */
-export function useMobile(breakpoint: number = 768): boolean {
-  const [isMobile, setIsMobile] = useState<boolean>(() => {
-    if (typeof window === 'undefined') return false;
-    return window.innerWidth < breakpoint;
-  });
+export function useIsMobile() {
+  const [isMobile, setIsMobile] = React.useState<boolean | undefined>(undefined);
 
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-
-    const mediaQuery = window.matchMedia(`(max-width: ${breakpoint - 1}px)`);
-
-    const handleChange = (event: MediaQueryListEvent) => {
-      setIsMobile(event.matches);
+  React.useEffect(() => {
+    const mql = window.matchMedia(`(max-width: ${MOBILE_BREAKPOINT - 1}px)`);
+    const onChange = () => {
+      setIsMobile(window.innerWidth < MOBILE_BREAKPOINT);
     };
+    mql.addEventListener('change', onChange);
+    setIsMobile(window.innerWidth < MOBILE_BREAKPOINT);
+    return () => mql.removeEventListener('change', onChange);
+  }, []);
 
-    // Initial check
-    setIsMobile(mediaQuery.matches);
-
-    // Listen to changes
-    mediaQuery.addEventListener('change', handleChange);
-
-    return () => {
-      mediaQuery.removeEventListener('change', handleChange);
-    };
-  }, [breakpoint]);
-
-  return isMobile;
+  return !!isMobile;
 }

@@ -136,11 +136,6 @@ Q: What should I do when API rate limits are exceeded?
 A:  For support or feedback, you can contact the team through the 
 provided contact information in the email.
 
-# Tasks
-[] Read out problem statement, objectives, technologies, features, api integration guidelines, technical requirements, brownie points, evaluation criteria, and faqs thoroughly.
-[] After doing the above understand the directory sturcture I have made. I have create few files and directory struture on which you have to work on.
-[] Then plan accordingly and start executing it. I will also attach some reference UI images for your help.
-
 # General Guidelines
 - You have to maintain good coding practices throughout the project
 - Keep code separate(constants, interfaces/types, lib, components, etc) and not so much lines of codes

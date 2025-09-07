@@ -1,16 +1,24 @@
+import type React from 'react';
 import type { Metadata } from 'next';
-import { Inter } from 'next/font/google';
-import './globals.css';
+import { Geist, Geist_Mono } from 'next/font/google';
 
-const inter = Inter({
-  variable: '--font-inter',
+const geistSans = Geist({
+  variable: '--font-geist-sans',
   subsets: ['latin'],
 });
 
+const geistMono = Geist_Mono({
+  variable: '--font-geist-mono',
+  subsets: ['latin'],
+});
+import { Analytics } from '@vercel/analytics/next';
+import { ThemeProvider } from 'next-themes';
+import { Suspense } from 'react';
+import './globals.css';
+
 export const metadata: Metadata = {
-  title: 'Finboard',
-  description:
-    'A customizable dashboard to monitor stock prices with ease, tailored to track your selected tickers in real-time. ',
+  title: 'FinBoard - Customizable Finance Dashboard',
+  description: 'Build your own real-time finance monitoring dashboard with customizable widgets',
 };
 
 export default function RootLayout({
@@ -19,8 +27,20 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body className={`${inter.variable} antialiased`}>{children}</body>
+    <html lang="en" suppressHydrationWarning>
+      <body className={`font-sans ${geistSans.variable} ${geistMono.variable}`}>
+        <Suspense fallback={null}>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange
+          >
+            {children}
+          </ThemeProvider>
+        </Suspense>
+        <Analytics />
+      </body>
     </html>
   );
 }
