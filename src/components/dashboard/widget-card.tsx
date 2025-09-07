@@ -1,129 +1,149 @@
-'use client';
-
-import { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { useState, useEffect } from 'react';
+import { MoreVertical, RefreshCw, Trash2, Settings, Loader2, AlertCircle } from 'lucide-react';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { useWidgetStore, type Widget } from '@/lib/widget-store';
-import { getWidgetTemplate } from '@/lib/widget-templates';
-import { WidgetConfigDialog } from './widget-config-dialog';
-import { StockTableWidget } from '@/components/widgets/stock-table-widget';
-import { PriceChartWidget } from '@/components/widgets/price-chart-widget';
-import { CandlestickChartWidget } from '@/components/widgets/candlestick-chart-widget';
-import { PortfolioSummaryWidget } from '@/components/widgets/portfolio-summary-widget';
-import {
-  MoreVertical,
-  Trash2,
-  Settings,
-  Copy,
-  RefreshCw,
-  TrendingUp,
-  TrendingDown,
-  Clock,
-} from 'lucide-react';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Badge } from '@/components/ui/badge';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
+import { useDashboardStore, Widget } from '@/stores/dashboard-store';
+import { FinanceTable } from './finance-table';
+import { FinanceChart } from './finance-chart';
+import { WidgetConfigModal } from './widget-config-modal';
 
 interface WidgetCardProps {
   widget: Widget;
 }
 
-export function WidgetCard({ widget }: WidgetCardProps) {
-  const { removeWidget, duplicateWidget, selectWidget } = useWidgetStore();
-  const [configOpen, setConfigOpen] = useState(false);
-  const template = getWidgetTemplate(widget.type);
+export const WidgetCard = ({ widget }: WidgetCardProps) => {
+  const { removeWidget, updateWidgetData, updateWidget } = useDashboardStore();
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [showConfigModal, setShowConfigModal] = useState(false);
 
-  const handleConfigure = () => {
-    selectWidget(widget.id);
-    setConfigOpen(true);
+  const fetchData = async (showLoading = true) => {
+    if (showLoading) {
+      setIsRefreshing(true);
+      updateWidget(widget.id, { loading: true });
+    }
+
+    try {
+      const response = await fetch(widget.apiUrl);
+      const data = await response.json();
+      
+      if (response.ok) {
+        updateWidgetData(widget.id, data);
+      } else {
+        updateWidgetData(widget.id, null, `API Error: ${response.status}`);
+      }
+    } catch (error) {
+      updateWidgetData(widget.id, null, error instanceof Error ? error.message : 'Network error');
+    } finally {
+      setIsRefreshing(false);
+    }
   };
 
-  const handleDuplicate = () => {
-    duplicateWidget(widget.id);
+  useEffect(() => {
+    // Initial data fetch
+    if (!widget.data && !widget.loading) {
+      fetchData(false);
+    }
+
+    // Set up interval for auto-refresh
+    const interval = setInterval(() => {
+      fetchData(false);
+    }, widget.refreshInterval * 1000);
+
+    return () => clearInterval(interval);
+  }, [widget.id, widget.apiUrl, widget.refreshInterval]);
+
+  const handleRefresh = () => {
+    fetchData(true);
   };
 
   const handleRemove = () => {
     removeWidget(widget.id);
   };
 
-  const renderWidgetContent = () => {
+  const formatLastUpdated = (date?: Date | string) => {
+    if (!date) return 'Never';
+    const dateObj = typeof date === 'string' ? new Date(date) : date;
+    if (isNaN(dateObj.getTime())) return 'Invalid date';
+    
+    const now = new Date();
+    const diff = now.getTime() - dateObj.getTime();
+    const seconds = Math.floor(diff / 1000);
+    const minutes = Math.floor(seconds / 60);
+    
+    if (seconds < 60) return `${seconds}s ago`;
+    if (minutes < 60) return `${minutes}m ago`;
+    return dateObj.toLocaleTimeString();
+  };
+
+  const renderContent = () => {
+    if (widget.loading && !widget.data) {
+      return (
+        <div className="flex items-center justify-center h-32">
+          <div className="flex items-center gap-2 text-muted-foreground">
+            <Loader2 className="w-4 h-4 animate-spin" />
+            Loading data...
+          </div>
+        </div>
+      );
+    }
+
+    if (widget.error) {
+      return (
+        <div className="flex items-center justify-center h-32">
+          <div className="flex items-center gap-2 text-destructive">
+            <AlertCircle className="w-4 h-4" />
+            <span className="text-sm">{widget.error}</span>
+          </div>
+        </div>
+      );
+    }
+
+    if (!widget.data) {
+      return (
+        <div className="flex items-center justify-center h-32 text-muted-foreground">
+          No data available
+        </div>
+      );
+    }
+
     switch (widget.type) {
-      case 'stock-table':
-        return <StockTableWidget data={widget.data} config={widget.config} />;
-
-      case 'price-chart':
-        return <PriceChartWidget data={widget.data} config={widget.config} />;
-
-      case 'candlestick-chart':
-        return <CandlestickChartWidget data={widget.data} config={widget.config} />;
-
-      case 'portfolio-summary':
-        return <PortfolioSummaryWidget data={widget.data} config={widget.config} />;
-
-      case 'watchlist':
-      case 'market-gainers':
-      case 'market-losers':
-        return (
-          <div className="space-y-3">
-            {widget.data?.map((stock: any, index: number) => (
-              <div key={index} className="flex items-center justify-between">
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2">
-                    <span className="font-medium text-sm">{stock.symbol}</span>
-                    <Badge variant="outline" className="text-xs">
-                      {stock.name?.split(' ')[0] || 'Stock'}
-                    </Badge>
-                  </div>
-                </div>
-                <div className="text-right">
-                  <div className="font-medium text-sm">${stock.price}</div>
-                  <div
-                    className={`flex items-center gap-1 text-xs ${
-                      stock.change >= 0 ? 'text-green-600' : 'text-red-600'
-                    }`}
-                  >
-                    {stock.change >= 0 ? (
-                      <TrendingUp className="h-3 w-3" />
-                    ) : (
-                      <TrendingDown className="h-3 w-3" />
-                    )}
-                    {stock.changePercent?.toFixed(2)}%
-                  </div>
-                </div>
-              </div>
-            )) || (
-              <div className="text-center text-muted-foreground py-4">
-                <RefreshCw className="h-6 w-6 mx-auto mb-2" />
-                <p className="text-sm">Loading data...</p>
-              </div>
-            )}
-          </div>
-        );
-
-      case 'market-overview':
-        return (
-          <div className="grid grid-cols-2 gap-3">
-            {['SPY', 'QQQ', 'DIA', 'IWM'].map((symbol) => (
-              <div key={symbol} className="text-center p-2 rounded bg-muted/50">
-                <div className="font-medium text-sm">{symbol}</div>
-                <div className="text-xs text-green-600">+1.2%</div>
-              </div>
-            ))}
-          </div>
-        );
-
+      case 'table':
+        return <FinanceTable data={widget.data} config={widget.config} />;
+      case 'chart':
+        return <FinanceChart data={widget.data} config={widget.config} />;
+      case 'card':
       default:
         return (
-          <div className="text-center text-muted-foreground py-8">
-            <div className="p-3 rounded-full bg-muted inline-block mb-2">
-              {template?.icon && <template.icon className="h-6 w-6" />}
-            </div>
-            <p className="text-sm">Widget content will appear here</p>
+          <div className="space-y-3">
+            {Object.entries(widget.data)
+              .filter(([key]) => !widget.config.displayFields || widget.config.displayFields.includes(key))
+              .slice(0, 6)
+              .map(([key, value]) => {
+                const displayValue = typeof value === 'number' && key.includes('price') 
+                  ? `$${value.toFixed(2)}`
+                  : typeof value === 'number' && key.includes('change')
+                  ? `${value >= 0 ? '+' : ''}${value.toFixed(2)}${key.includes('percent') ? '%' : ''}`
+                  : typeof value === 'object' 
+                  ? JSON.stringify(value) 
+                  : String(value);
+
+                return (
+                  <div key={key} className="flex justify-between items-center">
+                    <span className="text-sm text-muted-foreground capitalize">
+                      {key.replace(/[_-]/g, ' ').replace(/^\d+\.\s*/, '')}
+                    </span>
+                    <span className={`text-sm font-medium ${
+                      typeof value === 'number' && key.includes('change') && value !== 0
+                        ? value > 0 ? 'text-green-400' : 'text-red-400'
+                        : 'text-foreground'
+                    }`}>
+                      {displayValue}
+                    </span>
+                  </div>
+                );
+              })}
           </div>
         );
     }
@@ -131,51 +151,67 @@ export function WidgetCard({ widget }: WidgetCardProps) {
 
   return (
     <>
-      <Card className="relative group h-full">
+      <Card className="bg-widget border-widget-border shadow-widget hover:shadow-lg transition-all duration-300 hover:border-primary/20">
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium flex items-center gap-2">
-            {template?.icon && <template.icon className="h-4 w-4" />}
-            {widget.title}
-          </CardTitle>
+          <div className="flex items-center gap-2">
+            <h3 className="font-semibold text-foreground text-sm">{widget.name}</h3>
+            <Badge variant="outline" className="text-xs border-widget-border">
+              {widget.type}
+            </Badge>
+          </div>
+          
           <div className="flex items-center gap-1">
-            {widget.lastUpdated && (
-              <div className="flex items-center gap-1 text-xs text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity">
-                <Clock className="h-3 w-3" />
-                {new Date(widget.lastUpdated).toLocaleTimeString()}
-              </div>
-            )}
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleRefresh}
+              disabled={isRefreshing}
+              className="h-8 w-8 p-0 hover:bg-widget-hover"
+            >
+              <RefreshCw className={`w-3 h-3 ${isRefreshing ? 'animate-spin' : ''}`} />
+            </Button>
+            
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity"
-                >
-                  <MoreVertical className="h-4 w-4" />
+                <Button variant="ghost" size="sm" className="h-8 w-8 p-0 hover:bg-widget-hover">
+                  <MoreVertical className="w-3 h-3" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={handleConfigure}>
-                  <Settings className="h-4 w-4 mr-2" />
+              <DropdownMenuContent align="end" className="bg-popover border-widget-border">
+                <DropdownMenuItem 
+                  onClick={() => setShowConfigModal(true)}
+                  className="text-foreground hover:bg-widget-hover"
+                >
+                  <Settings className="w-4 h-4 mr-2" />
                   Configure
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={handleDuplicate}>
-                  <Copy className="h-4 w-4 mr-2" />
-                  Duplicate
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={handleRemove} className="text-destructive">
-                  <Trash2 className="h-4 w-4 mr-2" />
+                <DropdownMenuItem 
+                  onClick={handleRemove}
+                  className="text-destructive hover:bg-destructive/10"
+                >
+                  <Trash2 className="w-4 h-4 mr-2" />
                   Remove
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
         </CardHeader>
-        <CardContent className="flex-1">{renderWidgetContent()}</CardContent>
+        
+        <CardContent className="pt-2">
+          {renderContent()}
+          
+          <div className="flex justify-between items-center mt-4 pt-2 border-t border-widget-border text-xs text-muted-foreground">
+            <span>Last updated: {formatLastUpdated(widget.lastUpdated)}</span>
+            <span>Refresh: {widget.refreshInterval}s</span>
+          </div>
+        </CardContent>
       </Card>
 
-      <WidgetConfigDialog open={configOpen} onOpenChange={setConfigOpen} widget={widget} />
+      <WidgetConfigModal 
+        widget={widget}
+        isOpen={showConfigModal}
+        onClose={() => setShowConfigModal(false)}
+      />
     </>
   );
-}
+};

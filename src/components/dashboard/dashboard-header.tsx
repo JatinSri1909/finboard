@@ -1,57 +1,32 @@
-'use client';
-
-import { useState } from 'react';
+import { Plus, BarChart3 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { ThemeToggle } from '@/components/theme-toggle';
-import { SettingsDialog } from './settings-dialog';
-import { Menu, Plus, Settings } from 'lucide-react';
+import { useDashboardStore } from '@/stores/dashboard-store';
 
-interface DashboardHeaderProps {
-  onMenuClick: () => void;
-  onAddWidget: () => void;
-}
-
-export function DashboardHeader({ onMenuClick, onAddWidget }: DashboardHeaderProps) {
-  const [settingsOpen, setSettingsOpen] = useState(false);
+export const DashboardHeader = () => {
+  const { setIsAddingWidget, widgets } = useDashboardStore();
 
   return (
-    <>
-      <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="container flex h-16 items-center justify-between px-4">
-          <div className="flex items-center gap-4">
-            <Button variant="ghost" size="icon" onClick={onMenuClick} className="md:hidden">
-              <Menu className="h-5 w-5" />
-            </Button>
-
-            <div className="flex items-center gap-2">
-              <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center">
-                <span className="text-primary-foreground font-bold text-sm">FB</span>
-              </div>
-              <h1 className="text-xl font-bold text-foreground">FinBoard</h1>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={onAddWidget}
-              className="hidden sm:flex bg-transparent"
-            >
-              <Plus className="h-4 w-4 mr-2" />
-              Add Widget
-            </Button>
-
-            <Button variant="ghost" size="icon" onClick={() => setSettingsOpen(true)}>
-              <Settings className="h-5 w-5" />
-            </Button>
-
-            <ThemeToggle />
-          </div>
+    <header className="flex items-center justify-between p-6 border-b border-widget-border bg-gradient-secondary">
+      <div className="flex items-center gap-3">
+        <div className="w-8 h-8 bg-foreground rounded-lg flex items-center justify-center">
+          <BarChart3 className="w-5 h-5 text-primary-foreground" />
         </div>
-      </header>
-
-      <SettingsDialog open={settingsOpen} onOpenChange={setSettingsOpen} />
-    </>
+        <div>
+          <h1 className="text-2xl font-bold text-foreground">Finance Dashboard</h1>
+          <p className="text-muted-foreground text-sm">
+            {widgets.length} active widget{widgets.length !== 1 ? 's' : ''} • Real-time data
+          </p>
+        </div>
+      </div>
+      
+      <Button 
+        onClick={() => setIsAddingWidget(true)}
+        className="bg-foreground hover:opacity-90 transition-opacity shadow-button"
+        size="lg"
+      >
+        <Plus className="w-4 h-4 mr-2" />
+        Add Widget
+      </Button>
+    </header>
   );
-}
+};
