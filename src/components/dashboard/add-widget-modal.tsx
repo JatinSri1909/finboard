@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { X, TestTube, Loader2 } from 'lucide-react';
+import { TestTube, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
