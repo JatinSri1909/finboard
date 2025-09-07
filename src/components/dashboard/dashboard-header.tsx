@@ -18,8 +18,8 @@ export const DashboardHeader = () => {
           </p>
         </div>
       </div>
-      
-      <Button 
+
+      <Button
         onClick={() => setIsAddingWidget(true)}
         className="bg-foreground hover:opacity-90 transition-opacity shadow-button"
         size="lg"

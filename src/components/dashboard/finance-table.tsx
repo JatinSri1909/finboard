@@ -1,6 +1,13 @@
 import { useState } from 'react';
 import { ChevronLeft, ChevronRight, Search } from 'lucide-react';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -20,7 +27,7 @@ interface FinanceTableProps {
 export const FinanceTable = ({ data, config }: FinanceTableProps) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState('');
-  
+
   const maxRows = config.maxRows || 10;
 
   // Extract table data from various API response formats
@@ -28,24 +35,24 @@ export const FinanceTable = ({ data, config }: FinanceTableProps) => {
     // Handle Alpha Vantage TOP_GAINERS_LOSERS format
     if (data.top_gainers) return data.top_gainers;
     if (data.most_actively_traded) return data.most_actively_traded;
-    
+
     // Handle array data
     if (Array.isArray(data)) return data;
-    
+
     // Handle object with array properties
-    const arrayFields = Object.values(data).find(value => Array.isArray(value));
+    const arrayFields = Object.values(data).find((value) => Array.isArray(value));
     if (arrayFields) return arrayFields as any[];
-    
+
     // Convert single object to array
     if (typeof data === 'object' && data !== null) {
       return [data];
     }
-    
+
     return [];
   };
 
   const tableData = extractTableData(data);
-  
+
   if (!tableData.length) {
     return (
       <div className="flex items-center justify-center h-32 text-muted-foreground">
@@ -56,13 +63,13 @@ export const FinanceTable = ({ data, config }: FinanceTableProps) => {
 
   // Get column headers from first row
   const headers = Object.keys(tableData[0]);
-  const displayHeaders = config.displayFields?.length 
-    ? headers.filter(header => config.displayFields!.includes(header))
+  const displayHeaders = config.displayFields?.length
+    ? headers.filter((header) => config.displayFields!.includes(header))
     : headers;
 
   // Filter data based on search term
-  const filteredData = tableData.filter(row =>
-    Object.values(row).some(value =>
+  const filteredData = tableData.filter((row) =>
+    Object.values(row).some((value) =>
       String(value).toLowerCase().includes(searchTerm.toLowerCase())
     )
   );
@@ -80,23 +87,24 @@ export const FinanceTable = ({ data, config }: FinanceTableProps) => {
       if (header.includes('change_percentage')) {
         const numValue = parseFloat(String(value).replace('%', ''));
         return (
-          <Badge variant={numValue >= 0 ? "default" : "destructive"} className="text-xs">
-            {numValue >= 0 ? '+' : ''}{numValue.toFixed(2)}%
+          <Badge variant={numValue >= 0 ? 'default' : 'destructive'} className="text-xs">
+            {numValue >= 0 ? '+' : ''}
+            {numValue.toFixed(2)}%
           </Badge>
         );
       }
       return value.toLocaleString();
     }
-    
+
     if (typeof value === 'string' && value.includes('%')) {
       const numValue = parseFloat(value.replace('%', ''));
       return (
-        <Badge variant={numValue >= 0 ? "default" : "destructive"} className="text-xs">
+        <Badge variant={numValue >= 0 ? 'default' : 'destructive'} className="text-xs">
           {value}
         </Badge>
       );
     }
-    
+
     return String(value);
   };
 
@@ -122,7 +130,7 @@ export const FinanceTable = ({ data, config }: FinanceTableProps) => {
             <TableRow className="border-widget-border hover:bg-widget-hover">
               {displayHeaders.map((header) => (
                 <TableHead key={header} className="text-foreground font-medium">
-                  {header.replace(/[_-]/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
+                  {header.replace(/[_-]/g, ' ').replace(/\b\w/g, (l) => l.toUpperCase())}
                 </TableHead>
               ))}
             </TableRow>
@@ -145,13 +153,14 @@ export const FinanceTable = ({ data, config }: FinanceTableProps) => {
       {totalPages > 1 && (
         <div className="flex items-center justify-between">
           <p className="text-sm text-muted-foreground">
-            Showing {startIndex + 1} to {Math.min(startIndex + maxRows, filteredData.length)} of {filteredData.length} results
+            Showing {startIndex + 1} to {Math.min(startIndex + maxRows, filteredData.length)} of{' '}
+            {filteredData.length} results
           </p>
           <div className="flex items-center gap-2">
             <Button
               variant="outline"
               size="sm"
-              onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+              onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
               disabled={currentPage === 1}
               className="border-widget-border hover:bg-widget-hover"
             >
@@ -163,7 +172,7 @@ export const FinanceTable = ({ data, config }: FinanceTableProps) => {
             <Button
               variant="outline"
               size="sm"
-              onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+              onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
               disabled={currentPage === totalPages}
               className="border-widget-border hover:bg-widget-hover"
             >
