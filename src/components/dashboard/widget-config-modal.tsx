@@ -12,7 +12,6 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
-import { Badge } from '@/components/ui/badge';
 import { useDashboardStore, Widget } from '@/stores/dashboard-store';
 import { toast } from 'sonner';
 

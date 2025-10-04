@@ -1,17 +1,18 @@
-import { useMemo, useState } from 'react';
-import { Responsive, WidthProvider, Layout } from 'react-grid-layout';
-import { useDashboardStore } from '@/stores/dashboard-store';
-import { WidgetCard } from './widget-card';
-import { Plus } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import 'react-grid-layout/css/styles.css';
-import 'react-resizable/css/styles.css';
+import { useMemo, useState } from "react";
+import { Responsive, WidthProvider, Layout } from "react-grid-layout";
+import { useDashboardStore } from "@/stores/dashboard-store";
+import { WidgetCard } from "./widget-card";
+import { Plus } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import "react-grid-layout/css/styles.css";
+import "react-resizable/css/styles.css";
 
 const ResponsiveGridLayout = WidthProvider(Responsive);
 
 export const DashboardGrid = () => {
-  const { widgets, updateWidgetLayout, setIsAddingWidget } = useDashboardStore();
-  const [currentBreakpoint, setCurrentBreakpoint] = useState('lg');
+  const { widgets, updateWidgetLayout, setIsAddingWidget } =
+    useDashboardStore();
+  const [currentBreakpoint, setCurrentBreakpoint] = useState("lg");
 
   const layouts = useMemo(() => {
     const baseLayout = widgets.map((widget) => ({
@@ -48,9 +49,12 @@ export const DashboardGrid = () => {
     };
   }, [widgets]);
 
-  const handleLayoutChange = (layout: Layout[], layouts: { [key: string]: Layout[] }) => {
+  const handleLayoutChange = (
+    layout: Layout[],
+    layouts: { [key: string]: Layout[] },
+  ) => {
     // Only save layout changes for desktop (lg) breakpoint to avoid overwriting with mobile layouts
-    if (currentBreakpoint === 'lg') {
+    if (currentBreakpoint === "lg") {
       layout.forEach((item) => {
         const widget = widgets.find((w) => w.id === item.i);
         if (widget) {
@@ -76,10 +80,12 @@ export const DashboardGrid = () => {
           <div className="w-16 h-16 bg-gradient-primary rounded-full flex items-center justify-center mx-auto">
             <Plus className="w-8 h-8 text-primary-foreground" />
           </div>
-          <h3 className="text-xl font-semibold text-foreground">Build Your Finance Dashboard</h3>
+          <h3 className="text-xl font-semibold text-foreground">
+            Build Your Finance Dashboard
+          </h3>
           <p className="text-muted-foreground">
-            Create custom widgets by connecting to any finance API. Track stocks, monitor
-            performance, and visualize real-time data.
+            Create custom widgets by connecting to any finance API. Track
+            stocks, monitor performance, and visualize real-time data.
           </p>
           <Button
             onClick={() => setIsAddingWidget(true)}
@@ -169,8 +175,8 @@ export const DashboardGrid = () => {
         onBreakpointChange={handleBreakpointChange}
         margin={[16, 16]}
         containerPadding={[0, 0]}
-        isDraggable={currentBreakpoint === 'lg'} // Only allow dragging on desktop
-        isResizable={currentBreakpoint === 'lg'} // Only allow resizing on desktop
+        isDraggable={currentBreakpoint === "lg"} // Only allow dragging on desktop
+        isResizable={currentBreakpoint === "lg"} // Only allow resizing on desktop
         compactType="vertical"
         preventCollision={true}
         autoSize={true}

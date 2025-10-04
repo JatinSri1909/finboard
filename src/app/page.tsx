@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import { AddWidgetModal } from '@/components/dashboard/add-widget-modal';
-import { DashboardGrid } from '@/components/dashboard/dashboard-grid';
-import { DashboardHeader } from '@/components/dashboard/dashboard-header';
+import { AddWidgetModal } from "@/components/dashboard/add-widget-modal";
+import { DashboardGrid } from "@/components/dashboard/dashboard-grid";
+import { DashboardHeader } from "@/components/dashboard/dashboard-header";
 
 export default function DashboardPage() {
   return (

@@ -1,23 +1,23 @@
-import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
+import { create } from "zustand";
+import { persist } from "zustand/middleware";
 
 export interface Widget {
   id: string;
   name: string;
-  type: 'card' | 'table' | 'chart';
+  type: "card" | "table" | "chart";
   apiUrl: string;
   refreshInterval: number;
   config: {
     displayFields?: string[];
-    chartType?: 'line' | 'candlestick';
-    timeInterval?: 'daily' | 'weekly' | 'monthly';
+    chartType?: "line" | "candlestick";
+    timeInterval?: "daily" | "weekly" | "monthly";
     maxRows?: number;
     symbol?: string;
     exchange?: string;
     watchlistSymbols?: string[];
     showSearch?: boolean;
     showFilters?: boolean;
-    cardStyle?: 'single' | 'list' | 'grid';
+    cardStyle?: "single" | "list" | "grid";
   };
   position: {
     x: number;
@@ -37,14 +37,17 @@ interface DashboardState {
   editingWidget: Widget | null;
 
   // Actions
-  addWidget: (widget: Omit<Widget, 'id'>) => void;
+  addWidget: (widget: Omit<Widget, "id">) => void;
   removeWidget: (widgetId: string) => void;
   updateWidget: (widgetId: string, updates: Partial<Widget>) => void;
   updateWidgetData: (widgetId: string, data: any, error?: string) => void;
   setIsAddingWidget: (isAdding: boolean) => void;
   setEditingWidget: (widget: Widget | null) => void;
-  updateWidgetLayout: (widgetId: string, layout: Widget['position']) => void;
-  findNextAvailablePosition: (width: number, height: number) => { x: number; y: number };
+  updateWidgetLayout: (widgetId: string, layout: Widget["position"]) => void;
+  findNextAvailablePosition: (
+    width: number,
+    height: number,
+  ) => { x: number; y: number };
 }
 
 // Helper function to find next available position
@@ -52,21 +55,26 @@ const findNextPosition = (
   widgets: Widget[],
   targetWidth: number,
   targetHeight: number,
-  gridCols = 12
+  gridCols = 12,
 ): { x: number; y: number } => {
   if (widgets.length === 0) {
     return { x: 0, y: 0 };
   }
 
   // Create a grid to track occupied spaces
-  const maxY = Math.max(...widgets.map((w) => w.position.y + w.position.h)) + targetHeight;
+  const maxY =
+    Math.max(...widgets.map((w) => w.position.y + w.position.h)) + targetHeight;
   const grid: boolean[][] = Array(maxY)
     .fill(null)
     .map(() => Array(gridCols).fill(false));
 
   // Mark occupied positions
   widgets.forEach((widget) => {
-    for (let y = widget.position.y; y < widget.position.y + widget.position.h; y++) {
+    for (
+      let y = widget.position.y;
+      y < widget.position.y + widget.position.h;
+      y++
+    ) {
       for (
         let x = widget.position.x;
         x < widget.position.x + widget.position.w && x < gridCols;
@@ -110,7 +118,11 @@ export const useDashboardStore = create<DashboardState>()(
 
       addWidget: (widget) => {
         const state = get();
-        const nextPosition = findNextPosition(state.widgets, widget.position.w, widget.position.h);
+        const nextPosition = findNextPosition(
+          state.widgets,
+          widget.position.w,
+          widget.position.h,
+        );
         const newWidget: Widget = {
           ...widget,
           id: `widget-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
@@ -130,7 +142,9 @@ export const useDashboardStore = create<DashboardState>()(
 
       updateWidget: (widgetId, updates) => {
         set((state) => ({
-          widgets: state.widgets.map((w) => (w.id === widgetId ? { ...w, ...updates } : w)),
+          widgets: state.widgets.map((w) =>
+            w.id === widgetId ? { ...w, ...updates } : w,
+          ),
         }));
       },
 
@@ -145,7 +159,7 @@ export const useDashboardStore = create<DashboardState>()(
                   lastUpdated: new Date(),
                   loading: false,
                 }
-              : w
+              : w,
           ),
         }));
       },
@@ -160,7 +174,9 @@ export const useDashboardStore = create<DashboardState>()(
 
       updateWidgetLayout: (widgetId, layout) => {
         set((state) => ({
-          widgets: state.widgets.map((w) => (w.id === widgetId ? { ...w, position: layout } : w)),
+          widgets: state.widgets.map((w) =>
+            w.id === widgetId ? { ...w, position: layout } : w,
+          ),
         }));
       },
 
@@ -170,10 +186,10 @@ export const useDashboardStore = create<DashboardState>()(
       },
     }),
     {
-      name: 'finance-dashboard',
+      name: "finance-dashboard",
       partialize: (state) => ({
         widgets: state.widgets,
       }),
-    }
-  )
+    },
+  ),
 );
