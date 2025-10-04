@@ -6,13 +6,13 @@ import {
   ResponsiveContainer,
   AreaChart,
   Area,
-} from 'recharts';
+} from "recharts";
 
 interface FinanceChartProps {
   data: any;
   config: {
-    chartType?: 'line' | 'candlestick';
-    timeInterval?: 'daily' | 'weekly' | 'monthly';
+    chartType?: "line" | "candlestick";
+    timeInterval?: "daily" | "weekly" | "monthly";
     symbol?: string;
   };
 }
@@ -25,7 +25,9 @@ export const FinanceChart = ({ data, config }: FinanceChartProps) => {
       const variation = (Math.random() - 0.5) * 0.2;
       const price = basePrice * (1 + variation);
       return {
-        date: new Date(Date.now() - (29 - i) * 24 * 60 * 60 * 1000).toLocaleDateString(),
+        date: new Date(
+          Date.now() - (29 - i) * 24 * 60 * 60 * 1000,
+        ).toLocaleDateString(),
         price,
         high: price * 1.05,
         low: price * 0.95,
@@ -38,21 +40,21 @@ export const FinanceChart = ({ data, config }: FinanceChartProps) => {
   const extractChartData = (data: any): any[] => {
     try {
       // Ensure data exists and is not null/undefined
-      if (!data || typeof data !== 'object') {
+      if (!data || typeof data !== "object") {
         return generateFallbackData();
       }
 
       // Handle Alpha Vantage time series format
-      if (data['Time Series (Daily)']) {
-        const timeSeries = data['Time Series (Daily)'];
+      if (data["Time Series (Daily)"]) {
+        const timeSeries = data["Time Series (Daily)"];
         return Object.entries(timeSeries)
           .map(([date, values]: [string, any]) => ({
             date,
-            price: parseFloat(values['4. close']) || 0,
-            high: parseFloat(values['2. high']) || 0,
-            low: parseFloat(values['3. low']) || 0,
-            open: parseFloat(values['1. open']) || 0,
-            volume: parseInt(values['5. volume']) || 0,
+            price: parseFloat(values["4. close"]) ?? 0,
+            high: parseFloat(values["2. high"]) ?? 0,
+            low: parseFloat(values["3. low"]) ?? 0,
+            open: parseFloat(values["1. open"]) ?? 0,
+            volume: parseInt(values["5. volume"]) ?? 0,
           }))
           .reverse()
           .slice(-30); // Last 30 data points
@@ -83,16 +85,22 @@ export const FinanceChart = ({ data, config }: FinanceChartProps) => {
       // Handle array of objects with price data
       if (Array.isArray(data)) {
         return data.slice(-30).map((item, index) => ({
-          date: item.date || item.timestamp || `Day ${index + 1}`,
-          price: parseFloat(item.price || item.close || item.c || item.value || 0),
-          high: parseFloat(item.high || item.h || 0),
-          low: parseFloat(item.low || item.l || 0),
-          open: parseFloat(item.open || item.o || 0),
+          date: item.date ?? item.timestamp ?? `Day ${index + 1}`,
+          price: parseFloat(
+            item.price ?? item.close ?? item.c ?? item.value ?? 0,
+          ),
+          high: parseFloat(item.high ?? item.h ?? 0),
+          low: parseFloat(item.low ?? item.l ?? 0),
+          open: parseFloat(item.open ?? item.o ?? 0),
         }));
       }
 
       // Handle top gainers/losers format - create mock time series
-      if (data.top_gainers && Array.isArray(data.top_gainers) && data.top_gainers.length > 0) {
+      if (
+        data.top_gainers &&
+        Array.isArray(data.top_gainers) &&
+        data.top_gainers.length > 0
+      ) {
         const topStock = data.top_gainers[0];
         if (topStock && topStock.price) {
           const basePrice = parseFloat(topStock.price);
@@ -101,7 +109,9 @@ export const FinanceChart = ({ data, config }: FinanceChartProps) => {
               const variation = (Math.random() - 0.5) * 0.1;
               const price = basePrice * (1 + variation);
               return {
-                date: new Date(Date.now() - (29 - i) * 24 * 60 * 60 * 1000).toLocaleDateString(),
+                date: new Date(
+                  Date.now() - (29 - i) * 24 * 60 * 60 * 1000,
+                ).toLocaleDateString(),
                 price,
                 high: price * 1.02,
                 low: price * 0.98,
@@ -120,7 +130,9 @@ export const FinanceChart = ({ data, config }: FinanceChartProps) => {
             const variation = (Math.random() - 0.5) * 0.1;
             const price = currentPrice * (1 + variation);
             return {
-              date: new Date(Date.now() - (29 - i) * 24 * 60 * 60 * 1000).toLocaleDateString(),
+              date: new Date(
+                Date.now() - (29 - i) * 24 * 60 * 60 * 1000,
+              ).toLocaleDateString(),
               price,
               high: price * 1.02,
               low: price * 0.98,
@@ -136,7 +148,9 @@ export const FinanceChart = ({ data, config }: FinanceChartProps) => {
         const variation = (Math.random() - 0.5) * 0.2;
         const price = basePrice * (1 + variation);
         return {
-          date: new Date(Date.now() - (29 - i) * 24 * 60 * 60 * 1000).toLocaleDateString(),
+          date: new Date(
+            Date.now() - (29 - i) * 24 * 60 * 60 * 1000,
+          ).toLocaleDateString(),
           price,
           high: price * 1.05,
           low: price * 0.95,
@@ -144,7 +158,7 @@ export const FinanceChart = ({ data, config }: FinanceChartProps) => {
         };
       });
     } catch (error) {
-      console.error('Error extracting chart data:', error);
+      console.error("Error extracting chart data:", error);
       return generateFallbackData();
     }
   };
@@ -187,12 +201,17 @@ export const FinanceChart = ({ data, config }: FinanceChartProps) => {
             </linearGradient>
           </defs>
           <CartesianGrid strokeDasharray="3 3" stroke="#ffffff" />
-          <XAxis dataKey="date" stroke="#ffffff" fontSize={12} tick={{ fill: '#ffffff' }} />
+          <XAxis
+            dataKey="date"
+            stroke="#ffffff"
+            fontSize={12}
+            tick={{ fill: "#ffffff" }}
+          />
           <YAxis
             stroke="#ffffff"
             fontSize={12}
-            tick={{ fill: '#ffffff' }}
-            domain={['dataMin * 0.95', 'dataMax * 1.05']}
+            tick={{ fill: "#ffffff" }}
+            domain={["dataMin * 0.95", "dataMax * 1.05"]}
           />
           <Tooltip content={<CustomTooltip />} />
           <Area

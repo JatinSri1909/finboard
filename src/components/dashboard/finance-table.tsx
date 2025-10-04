@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { ChevronLeft, ChevronRight, Search } from 'lucide-react';
+import { useState } from "react";
+import { ChevronLeft, ChevronRight, Search } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -7,10 +7,10 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
+} from "@/components/ui/table";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
 
 interface FinanceTableProps {
   data: any;
@@ -20,13 +20,13 @@ interface FinanceTableProps {
     showSearch?: boolean;
     showFilters?: boolean;
     watchlistSymbols?: string[];
-    cardStyle?: 'single' | 'list' | 'grid';
+    cardStyle?: "single" | "list" | "grid";
   };
 }
 
 export const FinanceTable = ({ data, config }: FinanceTableProps) => {
   const [currentPage, setCurrentPage] = useState(1);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
 
   const maxRows = config.maxRows || 10;
 
@@ -40,11 +40,13 @@ export const FinanceTable = ({ data, config }: FinanceTableProps) => {
     if (Array.isArray(data)) return data;
 
     // Handle object with array properties
-    const arrayFields = Object.values(data).find((value) => Array.isArray(value));
+    const arrayFields = Object.values(data).find((value) =>
+      Array.isArray(value),
+    );
     if (arrayFields) return arrayFields as any[];
 
     // Convert single object to array
-    if (typeof data === 'object' && data !== null) {
+    if (typeof data === "object" && data !== null) {
       return [data];
     }
 
@@ -70,8 +72,8 @@ export const FinanceTable = ({ data, config }: FinanceTableProps) => {
   // Filter data based on search term
   const filteredData = tableData.filter((row) =>
     Object.values(row).some((value) =>
-      String(value).toLowerCase().includes(searchTerm.toLowerCase())
-    )
+      String(value).toLowerCase().includes(searchTerm.toLowerCase()),
+    ),
   );
 
   // Pagination
@@ -80,15 +82,18 @@ export const FinanceTable = ({ data, config }: FinanceTableProps) => {
   const paginatedData = filteredData.slice(startIndex, startIndex + maxRows);
 
   const formatCellValue = (value: any, header: string) => {
-    if (typeof value === 'number') {
-      if (header.includes('price') || header.includes('change_amount')) {
+    if (typeof value === "number") {
+      if (header.includes("price") || header.includes("change_amount")) {
         return `$${value.toFixed(2)}`;
       }
-      if (header.includes('change_percentage')) {
-        const numValue = parseFloat(String(value).replace('%', ''));
+      if (header.includes("change_percentage")) {
+        const numValue = parseFloat(String(value).replace("%", ""));
         return (
-          <Badge variant={numValue >= 0 ? 'default' : 'destructive'} className="text-xs">
-            {numValue >= 0 ? '+' : ''}
+          <Badge
+            variant={numValue >= 0 ? "default" : "destructive"}
+            className="text-xs"
+          >
+            {numValue >= 0 ? "+" : ""}
             {numValue.toFixed(2)}%
           </Badge>
         );
@@ -96,10 +101,13 @@ export const FinanceTable = ({ data, config }: FinanceTableProps) => {
       return value.toLocaleString();
     }
 
-    if (typeof value === 'string' && value.includes('%')) {
-      const numValue = parseFloat(value.replace('%', ''));
+    if (typeof value === "string" && value.includes("%")) {
+      const numValue = parseFloat(value.replace("%", ""));
       return (
-        <Badge variant={numValue >= 0 ? 'default' : 'destructive'} className="text-xs">
+        <Badge
+          variant={numValue >= 0 ? "default" : "destructive"}
+          className="text-xs"
+        >
           {value}
         </Badge>
       );
@@ -130,14 +138,19 @@ export const FinanceTable = ({ data, config }: FinanceTableProps) => {
             <TableRow className="border-widget-border hover:bg-widget-hover">
               {displayHeaders.map((header) => (
                 <TableHead key={header} className="text-foreground font-medium">
-                  {header.replace(/[_-]/g, ' ').replace(/\b\w/g, (l) => l.toUpperCase())}
+                  {header
+                    .replace(/[_-]/g, " ")
+                    .replace(/\b\w/g, (l) => l.toUpperCase())}
                 </TableHead>
               ))}
             </TableRow>
           </TableHeader>
           <TableBody>
             {paginatedData.map((row, index) => (
-              <TableRow key={index} className="border-widget-border hover:bg-widget-hover">
+              <TableRow
+                key={index}
+                className="border-widget-border hover:bg-widget-hover"
+              >
                 {displayHeaders.map((header) => (
                   <TableCell key={header} className="text-foreground">
                     {formatCellValue(row[header], header)}
@@ -153,7 +166,8 @@ export const FinanceTable = ({ data, config }: FinanceTableProps) => {
       {totalPages > 1 && (
         <div className="flex items-center justify-between">
           <p className="text-sm text-muted-foreground">
-            Showing {startIndex + 1} to {Math.min(startIndex + maxRows, filteredData.length)} of{' '}
+            Showing {startIndex + 1} to{" "}
+            {Math.min(startIndex + maxRows, filteredData.length)} of{" "}
             {filteredData.length} results
           </p>
           <div className="flex items-center gap-2">

@@ -1,18 +1,25 @@
-import { useState, useEffect } from 'react';
-import { MoreVertical, RefreshCw, Trash2, Settings, Loader2, AlertCircle } from 'lucide-react';
-import { Card, CardContent, CardHeader } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
+import { useState, useEffect } from "react";
+import {
+  MoreVertical,
+  RefreshCw,
+  Trash2,
+  Settings,
+  Loader2,
+  AlertCircle,
+} from "lucide-react";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { Badge } from '@/components/ui/badge';
-import { useDashboardStore, Widget } from '@/stores/dashboard-store';
-import { FinanceTable } from './finance-table';
-import { FinanceChart } from './finance-chart';
-import { WidgetConfigModal } from './widget-config-modal';
+} from "@/components/ui/dropdown-menu";
+import { Badge } from "@/components/ui/badge";
+import { useDashboardStore, Widget } from "@/stores/dashboard-store";
+import { FinanceTable } from "./finance-table";
+import { FinanceChart } from "./finance-chart";
+import { WidgetConfigModal } from "./widget-config-modal";
 
 interface WidgetCardProps {
   widget: Widget;
@@ -27,26 +34,29 @@ export const WidgetCard = ({ widget }: WidgetCardProps) => {
     if (showLoading) {
       setIsRefreshing(true);
     }
-    
+
     // Always set loading state when fetching
     updateWidget(widget.id, { loading: true, error: undefined });
 
     try {
       // Validate URL
-      if (!widget.apiUrl || widget.apiUrl.includes('undefined')) {
-        throw new Error('Invalid API URL - please check your environment variables');
+      if (!widget.apiUrl || widget.apiUrl.includes("undefined")) {
+        throw new Error(
+          "Invalid API URL - please check your environment variables",
+        );
       }
 
       const response = await fetch(widget.apiUrl);
-      
+
       if (!response.ok) {
         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       }
-      
+
       const data = await response.json();
       updateWidgetData(widget.id, data);
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Network error';
+      const errorMessage =
+        error instanceof Error ? error.message : "Network error";
       updateWidgetData(widget.id, null, errorMessage);
     } finally {
       if (showLoading) {
@@ -71,14 +81,15 @@ export const WidgetCard = ({ widget }: WidgetCardProps) => {
 
   const handleRefresh = async () => {
     await fetchData(true);
-  };  const handleRemove = () => {
+  };
+  const handleRemove = () => {
     removeWidget(widget.id);
   };
 
   const formatLastUpdated = (date?: Date | string) => {
-    if (!date) return 'Never';
-    const dateObj = typeof date === 'string' ? new Date(date) : date;
-    if (isNaN(dateObj.getTime())) return 'Invalid date';
+    if (!date) return "Never";
+    const dateObj = typeof date === "string" ? new Date(date) : date;
+    if (isNaN(dateObj.getTime())) return "Invalid date";
 
     const now = new Date();
     const diff = now.getTime() - dateObj.getTime();
@@ -122,41 +133,45 @@ export const WidgetCard = ({ widget }: WidgetCardProps) => {
     }
 
     switch (widget.type) {
-      case 'table':
+      case "table":
         return <FinanceTable data={widget.data} config={widget.config} />;
-      case 'chart':
+      case "chart":
         return <FinanceChart data={widget.data} config={widget.config} />;
-      case 'card':
+      case "card":
       default:
         return (
           <div className="space-y-3">
             {Object.entries(widget.data)
               .filter(
-                ([key]) => !widget.config.displayFields || widget.config.displayFields.includes(key)
+                ([key]) =>
+                  !widget.config.displayFields ||
+                  widget.config.displayFields.includes(key),
               )
               .slice(0, 6)
               .map(([key, value]) => {
                 const displayValue =
-                  typeof value === 'number' && key.includes('price')
+                  typeof value === "number" && key.includes("price")
                     ? `$${value.toFixed(2)}`
-                    : typeof value === 'number' && key.includes('change')
-                      ? `${value >= 0 ? '+' : ''}${value.toFixed(2)}${key.includes('percent') ? '%' : ''}`
-                      : typeof value === 'object'
+                    : typeof value === "number" && key.includes("change")
+                      ? `${value >= 0 ? "+" : ""}${value.toFixed(2)}${key.includes("percent") ? "%" : ""}`
+                      : typeof value === "object"
                         ? JSON.stringify(value)
                         : String(value);
 
                 return (
                   <div key={key} className="flex justify-between items-center">
                     <span className="text-sm text-muted-foreground capitalize">
-                      {key.replace(/[_-]/g, ' ').replace(/^\d+\.\s*/, '')}
+                      {key.replace(/[_-]/g, " ").replace(/^\d+\.\s*/, "")}
                     </span>
                     <span
                       className={`text-sm font-medium ${
-                        typeof value === 'number' && key.includes('change') && value !== 0
+                        typeof value === "number" &&
+                        key.includes("change") &&
+                        value !== 0
                           ? value > 0
-                            ? 'text-green-400'
-                            : 'text-red-400'
-                          : 'text-foreground'
+                            ? "text-green-400"
+                            : "text-red-400"
+                          : "text-foreground"
                       }`}
                     >
                       {displayValue}
@@ -174,7 +189,9 @@ export const WidgetCard = ({ widget }: WidgetCardProps) => {
       <Card className="bg-widget border-widget-border shadow-widget hover:shadow-lg transition-all duration-300 hover:border-primary/20">
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <div className="flex items-center gap-2">
-            <h3 className="font-semibold text-foreground text-sm">{widget.name}</h3>
+            <h3 className="font-semibold text-foreground text-sm">
+              {widget.name}
+            </h3>
             <Badge variant="outline" className="text-xs border-widget-border">
               {widget.type}
             </Badge>
@@ -188,16 +205,25 @@ export const WidgetCard = ({ widget }: WidgetCardProps) => {
               disabled={isRefreshing}
               className="h-8 w-8 p-0 hover:bg-widget-hover"
             >
-              <RefreshCw className={`w-3 h-3 ${isRefreshing ? 'animate-spin' : ''}`} />
+              <RefreshCw
+                className={`w-3 h-3 ${isRefreshing ? "animate-spin" : ""}`}
+              />
             </Button>
 
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="sm" className="h-8 w-8 p-0 hover:bg-widget-hover">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-8 w-8 p-0 hover:bg-widget-hover"
+                >
                   <MoreVertical className="w-3 h-3" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="bg-popover border-widget-border">
+              <DropdownMenuContent
+                align="end"
+                className="bg-popover border-widget-border"
+              >
                 <DropdownMenuItem
                   onClick={() => setShowConfigModal(true)}
                   className="text-foreground hover:bg-widget-hover"
