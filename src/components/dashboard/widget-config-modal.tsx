@@ -12,8 +12,9 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
-import { useDashboardStore, Widget } from '@/stores/dashboard-store';
+import { useDashboardStore } from '@/stores/dashboard-store';
 import { toast } from 'sonner';
+import { Widget } from '@/interface';
 
 interface WidgetConfigModalProps {
   widget: Widget | null;

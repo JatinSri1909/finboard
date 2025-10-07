@@ -17,7 +17,7 @@ interface FinanceChartProps {
   };
 }
 
-export const FinanceChart = ({ data, config }: FinanceChartProps) => {
+export const FinanceChart = ({ data }: FinanceChartProps) => {
   // Generate fallback data when API data is invalid
   const generateFallbackData = (): any[] => {
     const basePrice = 100;

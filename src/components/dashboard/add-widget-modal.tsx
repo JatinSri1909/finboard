@@ -17,9 +17,10 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { useDashboardStore, Widget } from "@/stores/dashboard-store";
+import { useDashboardStore } from "@/stores/dashboard-store";
 import { toast } from "sonner";
 import { API_PRESETS } from "@/config/environment";
+import { Widget } from "@/interface";
 
 export const AddWidgetModal = () => {
   const { isAddingWidget, setIsAddingWidget, addWidget } = useDashboardStore();

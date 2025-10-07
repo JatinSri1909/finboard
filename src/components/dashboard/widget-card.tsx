@@ -16,10 +16,11 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
-import { useDashboardStore, Widget } from "@/stores/dashboard-store";
+import { useDashboardStore } from "@/stores/dashboard-store";
 import { FinanceTable } from "./finance-table";
 import { FinanceChart } from "./finance-chart";
 import { WidgetConfigModal } from "./widget-config-modal";
+import { Widget } from "@/interface";
 
 interface WidgetCardProps {
   widget: Widget;

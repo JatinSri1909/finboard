@@ -28,17 +28,17 @@ export const DashboardGrid = () => {
       md: baseLayout.map((item) => ({
         ...item,
         w: Math.min(item.w, 10), // Constrain width for medium screens
-        x: Math.min(item.x, 10 - Math.min(item.w, 10)), // Ensure it fits
+        x: Math.min(item.x, 10 - Math.min(item.w, 10)),
       })),
       sm: baseLayout.map((item) => ({
         ...item,
         w: Math.min(item.w, 6), // Constrain width for small screens
-        x: Math.min(item.x, 6 - Math.min(item.w, 6)), // Ensure it fits
+        x: Math.min(item.x, 6 - Math.min(item.w, 6)),
       })),
       xs: baseLayout.map((item) => ({
         ...item,
         w: Math.min(item.w, 4), // Constrain width for extra small screens
-        x: Math.min(item.x, 4 - Math.min(item.w, 4)), // Ensure it fits
+        x: Math.min(item.x, 4 - Math.min(item.w, 4)),
       })),
       xxs: baseLayout.map((item, index) => ({
         ...item,
@@ -51,7 +51,6 @@ export const DashboardGrid = () => {
 
   const handleLayoutChange = (
     layout: Layout[],
-    layouts: { [key: string]: Layout[] },
   ) => {
     // Only save layout changes for desktop (lg) breakpoint to avoid overwriting with mobile layouts
     if (currentBreakpoint === "lg") {
